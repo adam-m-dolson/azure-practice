@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AZ-900 Scrambled Quiz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-2: rgba(30, 41, 59, 0.92);
+      --text: #e5eefb;
+      --muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-2: #38bdf8;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --warn: #f59e0b;
+      --border: rgba(148, 163, 184, 0.18);
+      --shadow: 0 20px 60px rgba(2, 6, 23, 0.45);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(96, 165, 250, 0.22), transparent 24%),
+        linear-gradient(160deg, #020617 0%, #0f172a 52%, #111827 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-card {
+      padding: 24px;
+    }
+
+    .title {
+      margin: 0 0 10px;
+      font-size: clamp(1.6rem, 2vw + 1rem, 2.6rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .quiz-card {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      background: rgba(148, 163, 184, 0.14);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: inherit;
+      transition: width 280ms ease;
+    }
+
+    .question-number {
+      color: var(--accent-2);
+      font-weight: 700;
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .question-text {
+      margin: 0;
+      font-size: clamp(1.1rem, 1.1vw + 0.95rem, 1.5rem);
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .choice {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(30, 41, 59, 0.85);
+      color: var(--text);
+      padding: 18px 18px;
+      text-align: left;
+      border-radius: 18px;
+      cursor: pointer;
+      font: inherit;
+      line-height: 1.45;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .choice:hover:not(:disabled),
+    .choice:focus-visible:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: rgba(96, 165, 250, 0.7);
+      box-shadow: 0 14px 30px rgba(2, 6, 23, 0.22);
+      outline: none;
+    }
+
+    .choice:disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .choice-letter {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--accent-2);
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .choice.correct {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(34, 197, 94, 0.6);
+    }
+
+    .choice.selected {
+      background: rgba(96, 165, 250, 0.18);
+      border-color: rgba(96, 165, 250, 0.65);
+    }
+
+
+    .choice.incorrect {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.65);
+      animation: shake 260ms linear;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    .feedback {
+      min-height: 66px;
+      border: 1px dashed rgba(148, 163, 184, 0.18);
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+    }
+
+    .feedback-icon {
+      font-size: 2rem;
+      line-height: 1;
+      width: 42px;
+      text-align: center;
+    }
+
+    .feedback.good .feedback-icon { color: var(--good); }
+    .feedback.bad .feedback-icon { color: var(--bad); }
+
+    .feedback strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.02rem;
+    }
+
+    .feedback p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .help-text {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(14, 165, 233, 0.22));
+      color: white;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 160ms ease, opacity 160ms ease, border-color 160ms ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(96, 165, 250, 0.65);
+      outline: none;
+    }
+
+    .btn.secondary {
+      background: rgba(30, 41, 59, 0.72);
+      color: var(--text);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .next-btn[hidden] {
+      display: none;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: center;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 800px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .choices {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card,
+      .quiz-card {
+        padding: 18px;
+      }
+
+      body {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <article class="panel hero-card">
+        <h1 class="title">AZ-900 scrambled practice quiz</h1>
+        <p class="subtitle">
+          All 150 questions are included. Each cycle uses a fresh shuffled order, and no question repeats until the full set has been exhausted.
+        </p>
+      </article>
+
+      <aside class="stats">
+        <div class="panel stat">
+          <div class="stat-label">Cycle</div>
+          <div class="stat-value" id="cycleValue">1</div>
+        </div>
+        <div class="panel stat">
+          <div class="stat-label">Question in cycle</div>
+          <div class="stat-value" id="questionValue">1 / 150</div>
+        </div>
+        <div class="panel stat">
+          <div class="stat-label">Correct this cycle</div>
+          <div class="stat-value" id="correctValue">0</div>
+        </div>
+        <div class="panel stat">
+          <div class="stat-label">Attempts</div>
+          <div class="stat-value" id="attemptValue">0</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel quiz-card">
+      <div class="topbar">
+        <div class="pill-row">
+          <div class="pill" id="cyclePill">Cycle 1</div>
+          <div class="pill" id="progressPill">Question 1 of 150</div>
+        </div>
+        <div class="pill" id="remainingPill">149 left after this one</div>
+      </div>
+
+      <div class="progress-wrap" aria-hidden="true">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div>
+        <div class="question-number" id="questionNumber">Question #1</div>
+        <h2 class="question-text" id="questionText"></h2>
+      </div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="feedback" id="feedback" aria-live="polite">
+        <div class="feedback-icon" id="feedbackIcon">•</div>
+        <div>
+          <strong id="feedbackTitle">Pick an answer</strong>
+          <p id="feedbackText">Correct answers play <code>ding.mp3</code>. Wrong answers play <code>buzz.mp3</code>.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn secondary" id="restartBtn" type="button">Start new shuffled cycle</button>
+          <button class="btn" id="checkBtn" type="button" hidden disabled>Check answer</button>
+          <button class="btn next-btn" id="nextBtn" type="button" hidden>Next question</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  
+  <script>
+    // ======= QUIZ DATA =======
+    // To fix the answer key later, edit ONLY the "answer" or "answers" value for any question below.
+    // Single-answer questions use "answer". Multi-select questions use "answers".
+    const quizBank = [
+  {
+    "id": 1,
+    "question": "To transition a large capital expenditure (CapEx) to an operational expenditure (OpEx), Contoso's CIO has suggested to the board that the organization move their virtual machine (IaaS) workloads to Azure. The CFO argues that this will result in unpredictable OpEx spending. In this case, what pricing option is available to reduce costs and making predicting future spending easier?",
+    "options": [
+      "Azure Reservations",
+      "Pay-as-you-go (PAYG)",
+      "Azure VM Scale Sets",
+      "Azure in CSP"
+    ],
+    "answer": "Azure Reservations"
+  },
+  {
+    "id": 2,
+    "question": "Tailspin Toys, a small startup, is choosing their initial services architecture. They choose to rely on Office 365 and Microsoft Azure for all services. Which of the following best describes the cloud model they have chosen?",
+    "options": [
+      "Private Cloud",
+      "Public Cloud",
+      "Hybrid Cloud",
+      "Government Cloud"
+    ],
+    "answer": "Public Cloud"
+  },
+  {
+    "id": 3,
+    "question": "Which of the following statements are true of a Software as a Service solution?",
+    "options": [
+      "You are responsible for maintaining the solution infrastructure",
+      "You are responsible for deploying updates to the solution",
+      "You are responsible for solution availability and scalability",
+      "You are responsible for configuring the solution features"
+    ],
+    "answer": "You are responsible for configuring the solution features"
+  },
+  {
+    "id": 4,
+    "question": "Contoso is planning to move to Azure, but currently hosts business applications in a shared virtualization infrastructure on-premises, utilizing Hyper-V. This is an example of which cloud computing model?",
+    "options": [
+      "Hybrid Cloud",
+      "Private Cloud",
+      "Public Cloud",
+      "Government Cloud"
+    ],
+    "answer": "Private Cloud"
+  },
+  {
+    "id": 5,
+    "question": "Azure SQL Database and an on-premises SQL cluster represent a(n) ___ expense and a(n) ____ expense, respectively.",
+    "options": [
+      "Capital, Capital",
+      "Capital, Operational",
+      "Operational, Operational",
+      "Operational, Capital"
+    ],
+    "answer": "Operational, Capital"
+  },
+  {
+    "id": 6,
+    "question": "In Azure, you are charged only for what you use. This is known as a",
+    "options": [
+      "Fixed-price model",
+      "Consumption based model"
+    ],
+    "answer": "Consumption based model"
+  },
+  {
+    "id": 7,
+    "question": "Contoso runs several business applications in Azure VMs. Which cloud computing model best categorizes Azure VMs?",
+    "options": [
+      "Software as a service (SaaS)",
+      "Platform as a service (PaaS)",
+      "Infrastructure as a service (IaaS)",
+      "Function as a service (FaaS)"
+    ],
+    "answer": "Infrastructure as a service (IaaS)"
+  },
+  {
+    "id": 8,
+    "question": "Azure App Service, Azure SQL Database, and Cosmos DB are examples of which category of cloud computing service?",
+    "options": [
+      "Function as a Service (FaaS)",
+      "Software as a Service (SaaS)",
+      "Platform as a Service (PaaS)",
+      "Infrastructure as a Service (IaaS)"
+    ],
+    "answer": "Platform as a Service (PaaS)"
+  },
+  {
+    "id": 9,
+    "question": "You need to provide additional capacity than what is currently available in your on-premises datacenter. The solution must minimize capital expense (CapEx) and operational expense (OpEx). Which solution should you recommend?",
+    "options": [
+      "Migration to public cloud",
+      "A private cloud",
+      "A hybrid cloud",
+      "Additional on-premises servers"
+    ],
+    "answer": "Migration to public cloud"
+  },
+  {
+    "id": 10,
+    "question": "Office 365, Azure VMs, and Event Grid represent, ______, ______, and ______, respectively.",
+    "options": [
+      "1)SaaS 2) PaaS 3) IaaS",
+      "1) PaaS 2) IaaS 3) SaaS",
+      "1) SaaS 2) IaaS 3) PaaS"
+    ],
+    "answer": "1) SaaS 2) IaaS 3) PaaS"
+  },
+  {
+    "id": 11,
+    "question": "Contoso host databases for customer-facing web applications in Azure MySQL Database. Which cloud computing model best categorizes this service?",
+    "options": [
+      "Software as a service (SaaS)",
+      "Platform as a service (PaaS)",
+      "infrastructure as a service (IaaS)",
+      "Function as a service (FaaS)"
+    ],
+    "answer": "Platform as a service (PaaS)"
+  },
+  {
+    "id": 12,
+    "question": "Contoso hosts a legacy CRM application that runs on an Azure VM scale set. The application runs at a steady state of around 30% resource utilization. However, during month end closing activities, the application spikes to 90% resource utilization for extended periods during the last week of the month. Azure allows Contoso IT to meet these spikes in resource demand at the push of a button, paying for the additional capacity only when needed. This is an example of:",
+    "options": [
+      "Scalability",
+      "Elasticity",
+      "Fault Tolerance",
+      "High Availability"
+    ],
+    "answer": "Elasticity"
+  },
+  {
+    "id": 13,
+    "question": "Contoso plans to migrate their existing on-premises SQL VMs to Azure. Which expenditure model does this implement?",
+    "options": [
+      "Capital (CAPEX)",
+      "Operational (OPEX)",
+      "Subscription",
+      "Elastic"
+    ],
+    "answer": "Operational (OPEX)"
+  },
+  {
+    "id": 14,
+    "question": "A financial analysis of migration of on-premises files to Azure Storage at Contoso showed that storing 2TB of archived data in Azure would be less expensive than hosting this data on-premises. The report also showed unit cost in Azure would decrease even further as the data archive grows. This is an example of cloud",
+    "options": [
+      "Elasticity",
+      "Economies of scale",
+      "Scalability",
+      "High Availability"
+    ],
+    "answer": "Economies of scale"
+  },
+  {
+    "id": 15,
+    "question": "The Contoso Corp Financial Services team needs to automate several business processes. They need to create workflows in a low-code environment with a visual interface. The service must have built-in connectivity to their existing platforms, like SalesForce and SAP. The members working on the project are only lightly technical (citizen developers). Which Microsoft service will best fit their use case?",
+    "options": [
+      "Power Automate",
+      "Logic Apps",
+      "Azure Automation",
+      "Azure Functions"
+    ],
+    "answer": "Power Automate"
+  },
+  {
+    "id": 16,
+    "question": "Kelly, who works in IT Operations, wants to automate a task using a script she wrote. She wants to do this with a minimum of expense and maintenance effort. She selected Azure Functions to host the job, instead of Azure Virtual Machines (IaaS). Does this service meet the solution criteria?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 17,
+    "question": "Contoso has a line-of-business application that requires access to a file share. You need to host this share in Azure with a minimum of cost and administration effort. Which service would best fulfill this requirement?",
+    "options": [
+      "Azure Files",
+      "Azure Blob Storage",
+      "Azure VMs",
+      "VM Scale Sets"
+    ],
+    "answer": "Azure Files"
+  },
+  {
+    "id": 18,
+    "question": "Contoso IT needs to ensure deployments of like Azure resources are the same for every deployment. Which of the following could be used to automate resource deployment?",
+    "options": [
+      "Azure API Management",
+      "Management Groups",
+      "Azure Resource Manager (ARM) templates",
+      "Azure Synapse"
+    ],
+    "answer": "Azure Resource Manager (ARM) templates"
+  },
+  {
+    "id": 19,
+    "question": "You are testing new software in an Azure VM. When you are done testing, you shut down the VM, which shows a state of \"Stopped\" in the Azure portal. Will you incur additional costs while the VM is in this state?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 20,
+    "question": "You are deploying multiple instances of a custom Contoso web application. The application instances share a common management lifecycle, but will be located in different Azure regions. Can you deploy resources across multiple Azure regions in a single resource group?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 21,
+    "question": "You are responsible for recommending infrastructure architectures for applications at Contoso. Which solution would you recommend for on-demand execution of automated tasks in Python for minimum of expense?",
+    "options": [
+      "Azure Monitor",
+      "Azure Cloud Shell",
+      "Azure Automation",
+      "Azure Functions"
+    ],
+    "answer": "Azure Functions"
+  },
+  {
+    "id": 22,
+    "question": "Which Azure service would you use to correlate events from multiple Azure resources in a central repository? (choose the best answer)",
+    "options": [
+      "Azure Data Lake",
+      "Azure Log Analytics",
+      "Azure Event Grid",
+      "Azure Event Hub"
+    ],
+    "answer": "Azure Log Analytics"
+  },
+  {
+    "id": 23,
+    "question": "An ______ protects against datacenter-level failures.",
+    "options": [
+      "Availability Set",
+      "Availability Zone",
+      "VM scale set",
+      "Azure VM"
+    ],
+    "answer": "Availability Zone"
+  },
+  {
+    "id": 24,
+    "question": "Contoso has messages from a variety of sources (many Azure services) that need to be relayed to an application. Which Azure service would be best suited to the task?",
+    "options": [
+      "Azure Functions",
+      "Azure Event Grid",
+      "Azure IoT Hub",
+      "Azure Service Bus"
+    ],
+    "answer": "Azure Event Grid"
+  },
+  {
+    "id": 25,
+    "question": "You can monitor health and availability of your Azure Kubernetes Service (AKS) cluster with:",
+    "options": [
+      "Azure Monitor",
+      "Azure App Insights",
+      "Microsoft Sentinel",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Azure Monitor"
+  },
+  {
+    "id": 26,
+    "question": "Which storage tier in Azure Storage delivers the highest cost of data storage?",
+    "options": [
+      "Hot",
+      "Cool",
+      "Cold",
+      "Archive"
+    ],
+    "answer": "Hot"
+  },
+  {
+    "id": 27,
+    "question": "To retire some aging on-premises servers, Contoso is planning to move several SQL databases to Azure SQL Database. The CIO has asked for a tool to estimate the cost of hosting these resources in Azure. Sally suggests using the Azure Pricing Calculator to estimate costs prior to migration. Does Sally's solution meet the solution criteria?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 28,
+    "question": "Which storage tier in Azure Storage delivers the lowest cost of data storage?",
+    "options": [
+      "Hot",
+      "Cool",
+      "Cold",
+      "Archive"
+    ],
+    "answer": "Archive"
+  },
+  {
+    "id": 29,
+    "question": "You have a mobile application that exchanges large numbers of messages with customer devices. Which type of Azure storage is optimized for storing large numbers of messages, accessible from anywhere via authenticated HTTP or HTTPS calls?",
+    "options": [
+      "Blob Storage",
+      "Queue Storage",
+      "Table Storage",
+      "File Storage"
+    ],
+    "answer": "Queue Storage"
+  },
+  {
+    "id": 30,
+    "question": "Contoso's Security team wants to apply policy-based configuration across deployments in multiple Azure subscriptions. Which of the following can help achieve this requirement?",
+    "options": [
+      "Resource Groups",
+      "Management Groups",
+      "Role Based Access Control (RBAC)",
+      "Access Policies"
+    ],
+    "answer": "Management Groups"
+  },
+  {
+    "id": 31,
+    "question": "Contoso plans to implement a hybrid cloud architecture utilizing Azure. They need to connect on-premises application resources. The solution should minimize latency and maximize security. Which option should they choose?",
+    "options": [
+      "Point-to-Site VPN",
+      "Site-to-Site VPN",
+      "ExpressRoute",
+      "Azure Application Gateway"
+    ],
+    "answer": "ExpressRoute"
+  },
+  {
+    "id": 32,
+    "question": "As part of a hybrid cloud deployment at Contoso, you need to connect Contoso's on-premises datacenter to Azure. The solution you choose should minimize expense during the low-scale pilot deployment. Which option will you choose?",
+    "options": [
+      "Point-to-Site VPN",
+      "Site-to-Site VPN",
+      "ExpressRoute",
+      "Azure Application Gateway"
+    ],
+    "answer": "Site-to-Site VPN"
+  },
+  {
+    "id": 33,
+    "question": "For regulatory compliance, you need to ensure Contoso's corporate web apps use TLS 1.2 for encryption. Does Azure App Service support enforcing this specific requirement?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 34,
+    "question": "Contoso wants to migrate a legacy application to Azure that requires an file share accessible on a UNC path. You need to provide an SMB file share and secure access. The solution should minimize administrative effort. Which service will you use?",
+    "options": [
+      "OneDrive",
+      "SharePoint",
+      "Azure VM with a file share",
+      "Azure Files"
+    ],
+    "answer": "Azure Files"
+  },
+  {
+    "id": 35,
+    "question": "Storage for Azure VMs is hosted in which Azure Storage type?",
+    "options": [
+      "File",
+      "Table",
+      "Disk",
+      "Blob"
+    ],
+    "answer": "Disk"
+  },
+  {
+    "id": 36,
+    "question": "Contoso IT wants to configure separate Azure subscriptions for different environments (production, development, test) and products. Can they associate multiple Azure subscriptions to the same Entra ID tenant?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 37,
+    "question": "Contoso Financial Services regularly creates documents containing sensitive customer data, including personally identifiable information. You need to ensure access is restricted to finance personnel, regardless of where the document travels. Which service should you use to classify and protect these documents?",
+    "options": [
+      "Microsoft Defender for Cloud Apps",
+      "Microsoft Defender for Endpoint",
+      "Microsoft Purview",
+      "Entra ID Conditional Access"
+    ],
+    "answer": "Microsoft Purview"
+  },
+  {
+    "id": 38,
+    "question": "An Azure ______ is a set of datacenters deployed within a latency-defined perimeter and connected through a dedicated regional low-latency network.",
+    "options": [
+      "Availability Zone",
+      "Region",
+      "Geography",
+      "Datacenter"
+    ],
+    "answer": "Region"
+  },
+  {
+    "id": 39,
+    "question": "Which Azure storage redundancy option does Microsoft recommend for maximum redundancy and recoverability?",
+    "options": [
+      "Locally Redundant Storage (LRS)",
+      "Geo-Redundant Storage (GRS)",
+      "Zone Redundant Storage (ZRS)",
+      "Geo Zone Redundant Storage (GZRS)"
+    ],
+    "answer": "Geo Zone Redundant Storage (GZRS)"
+  },
+  {
+    "id": 40,
+    "question": "An ______ protects against VM failures due to failures in updates, power, or network connectivity.",
+    "options": [
+      "Availability Set",
+      "Availability Zone",
+      "VM scale set",
+      "Azure VM"
+    ],
+    "answer": "Availability Set"
+  },
+  {
+    "id": 41,
+    "question": "You need to manage your Azure VMs using the Azure portal. Which URL would you use to manage the Azure VMs?",
+    "options": [
+      "https://portal.azurewebsites.net",
+      "https://portal.microsoft.com",
+      "https://portal.azure.microsoft.com",
+      "https://portal.azure.com"
+    ],
+    "answer": "https://portal.azure.com"
+  },
+  {
+    "id": 42,
+    "question": "Contoso IT wants to develop modern application components using a serverless architecture. Which Azure service is best for hosting code as part of a services infrastructure?",
+    "options": [
+      "Azure Logic Apps",
+      "Azure Functions",
+      "Azure Service Bus",
+      "Azure Automation"
+    ],
+    "answer": "Azure Functions"
+  },
+  {
+    "id": 43,
+    "question": "You can monitor health and performance of microservices applications running on Azure Kubernetes Service (AKS) with:",
+    "options": [
+      "Azure Monitor",
+      "Azure App Insights",
+      "Azure Sentinel",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Azure Monitor"
+  },
+  {
+    "id": 44,
+    "question": "You need to store unstructured data, such as images, video files, social media posts on Azure Storage. Which type of Azure Storage is optimized for storage of large amounts of unstructured data?",
+    "options": [
+      "Table Storage",
+      "Queue Storage",
+      "Disk Storage",
+      "Blob Storage"
+    ],
+    "answer": "Blob Storage"
+  },
+  {
+    "id": 45,
+    "question": "Contoso IT has deployed a group of Azure VMs for hosting production. They want best practices recommendations for high availability of their VM resources. Will the Azure Advisor tool provide recommendations for these existing resources?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 46,
+    "question": "The Contoso IT Operations team needs to monitor their customer-facing web apps for performance anomalies. Which Azure service will best fulfill this need?",
+    "options": [
+      "Azure WebJobs",
+      "Azure Application Insights",
+      "Azure Automation",
+      "Azure Sentinel"
+    ],
+    "answer": "Azure Application Insights"
+  },
+  {
+    "id": 47,
+    "question": "You need to automate responses to some alerts from Azure Monitor. Which service supports automating responses and corrective actions in this scenario?",
+    "options": [
+      "Power Automate",
+      "Azure Logic Apps",
+      "Azure Web Jobs",
+      "Azure Automation"
+    ],
+    "answer": "Azure Automation"
+  },
+  {
+    "id": 48,
+    "question": "The Contoso IT Operations team needs to aggregate events from a large number of resources hosted in Azure for correlation, alerting, and reporting. Which Azure service would you use to centrally collect, store, and act on events?",
+    "options": [
+      "Azure App Insights",
+      "Azure Monitor",
+      "Azure Data Lake",
+      "Azure Event Hub"
+    ],
+    "answer": "Azure Monitor"
+  },
+  {
+    "id": 49,
+    "question": "You need to alert on service failures in your Azure services, such as web app instances hosted in App Service, and Azure VMs that stop running for any reason. Which tool should you use?",
+    "options": [
+      "Azure App Insights",
+      "Azure Log Analytics",
+      "Azure Monitor",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Azure Monitor"
+  },
+  {
+    "id": 50,
+    "question": "You can find recommendations for security best practices security configuration for Azure Kubernetes Service (AKS) with:",
+    "options": [
+      "Azure Monitor",
+      "Azure App Insights",
+      "Microsoft Sentinel",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Microsoft Defender for Cloud"
+  },
+  {
+    "id": 51,
+    "question": "Azure VMs in different virtual networks can communicate by default",
+    "options": [
+      "TRUE",
+      "FALSE"
+    ],
+    "answer": "FALSE"
+  },
+  {
+    "id": 52,
+    "question": "Which Microsoft solution provides support for passwordless authentication on Windows 10 and 11 systems?",
+    "options": [
+      "Entra ID Conditional Access",
+      "Microsoft Authenticator",
+      "Windows Hello for Business",
+      "Microsoft Purview"
+    ],
+    "answer": "Windows Hello for Business"
+  },
+  {
+    "id": 53,
+    "question": "You have deployed an Azure VM hosting a line-of-business web application. You need to provide access to the application over the Internet via HTTP/S. You add a security rule to the Network Security Group (NSG) to allow inbound traffic from the Internet. Does this solution meet the requirement?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "NO"
+  },
+  {
+    "id": 54,
+    "question": "Contoso IT has deployed multiple Azure VM across 15 virtual networks. How can you most securely limit inbound traffic and protect these VMs from unwanted inbound requests? (choose the best answer)",
+    "options": [
+      "Create a network security group (NSG)",
+      "Deploy an Azure Firewall",
+      "Deploy an Azure Load Balancer",
+      "Deploy a virtual network gateway"
+    ],
+    "answer": "Deploy an Azure Firewall"
+  },
+  {
+    "id": 55,
+    "question": "You need to define and enforce corporate standards for new and existing Azure resource deployments in all of Contoso's Azure subscriptions. What should you use to meet this objective?",
+    "options": [
+      "Azure Policy",
+      "Microsoft Defender for Cloud",
+      "Microsoft Sentinel",
+      "Azure Advisor"
+    ],
+    "answer": "Azure Policy"
+  },
+  {
+    "id": 56,
+    "question": "Tailspin Toys relies heavily on Entra ID for cloud identity. They want to more effectively protect their identities from external threats. Which service should they choose?",
+    "options": [
+      "Azure Identity Protection",
+      "Microsoft Defender for Endpoint",
+      "Azure DDoS",
+      "Microsoft Information Protection"
+    ],
+    "answer": "Azure Identity Protection"
+  },
+  {
+    "id": 57,
+    "question": "In a Site-to-Site VPN, the____ is the cross-premises gateway that connects your Azure Virtual Network with your on-premises VPN appliances",
+    "options": [
+      "Azure Application Gateway",
+      "Azure Virtual Network Gateway",
+      "Local Network Gateway",
+      "Private Endpoint"
+    ],
+    "answer": "Azure Virtual Network Gateway"
+  },
+  {
+    "id": 58,
+    "question": "You need to prevent accidental deletion of Azure resources in your subscription. Which feature will meet this requirement? (choose the best answer)",
+    "options": [
+      "RBAC",
+      "Resource Locks",
+      "Security groups",
+      "Azure policies"
+    ],
+    "answer": "Resource Locks"
+  },
+  {
+    "id": 59,
+    "question": "You are responsible for creating Azure resources at Contoso using ARM templates. You need to ensure Azure resources are only created in approved regions. What should you use to enforce this requirement",
+    "options": [
+      "Azure locks",
+      "Azure Policy",
+      "Azure Blueprint",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Azure Policy"
+  },
+  {
+    "id": 60,
+    "question": "Contoso IT assigns permissions at the resource group level for all resources deployed to Azure. Will resources in the resource group inherit permissions assigned to the resource group?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 61,
+    "question": "Contoso has implemented a hybrid, synchronized identity model, consisting of on-premises Active Directory and Entra ID. They want to more effectively protect their on-premises identities from external threats. Which service should they choose?",
+    "options": [
+      "Azure Identity Protection",
+      "Microsoft Defender for Endpoint",
+      "Azure DDoS",
+      "Microsoft Information Protection"
+    ],
+    "answer": "Azure Identity Protection"
+  },
+  {
+    "id": 62,
+    "question": "You need to implement multi-factor authentication for your Entra ID users. However, you only want to prompt for an additional authentication factor when users are not in a trusted location on an unmanaged device. Which feature should you implement? (choose the best answer)",
+    "options": [
+      "Microsoft Purview",
+      "Identity Protection",
+      "Conditional Access",
+      "Privileged Identity Management"
+    ],
+    "answer": "Conditional Access"
+  },
+  {
+    "id": 63,
+    "question": "The Contoso Security team has implemented a new security policy. When users connect from an outside corporate offices, they must be prompted for MFA. Which feature will you implement?",
+    "options": [
+      "Entra ID Privileged Identity Management",
+      "One Time Passwords (OTP)",
+      "Entra ID Identity Protection",
+      "Entra ID Conditional Access"
+    ],
+    "answer": "Entra ID Conditional Access"
+  },
+  {
+    "id": 64,
+    "question": "You need to support OATH tokens (one-time password) as a second authentication factor for Entra ID. What Microsoft solution enables use of OATH tokens for Entra ID and other identity providers?",
+    "options": [
+      "Entra ID Identity Protection",
+      "Microsoft Authenticator",
+      "Conditional Access",
+      "Entra ID Multi-Factor Authentication"
+    ],
+    "answer": "Microsoft Authenticator"
+  },
+  {
+    "id": 65,
+    "question": "The Contoso Legal Department has asked Contoso IT to verify whether the Contoso's Azure environment meets regulatory requirements. Which service should you use to answer this question?",
+    "options": [
+      "Azure Advisor",
+      "Microsoft Defender for Cloud",
+      "Microsoft Purview",
+      "Azure Policy"
+    ],
+    "answer": "Microsoft Defender for Cloud"
+  },
+  {
+    "id": 66,
+    "question": "What are the three foundational principles of Zero Trust?",
+    "options": [
+      "1) Verify explicitly 2) Use least privilege access 3) Assume breach",
+      "1) Verify explicitly 2) Use defense in depth 3) Assume breach",
+      "1) Verify explicitly 2) Trust but verify 3) Assume breach",
+      "1) Verify explicitly 2) Use least privilege access 3) Trust must be earned"
+    ],
+    "answer": "1) Verify explicitly 2) Use least privilege access 3) Assume breach"
+  },
+  {
+    "id": 67,
+    "question": "Contoso Electronics is a global retailer. The Contoso Cloud Architecture team needs to simplify deployments of new environments in Azure, including Azure Resource Manager (ARM) templates , role-based access, and policies. Which Azure service enables delivery of templates for repeatable deployment and configuration of new subscriptions and environments? (choose the best answer)",
+    "options": [
+      "Azure Policy initiatives",
+      "Azure Policy",
+      "ARM templates",
+      "Azure Blueprints"
+    ],
+    "answer": "Azure Blueprints"
+  },
+  {
+    "id": 68,
+    "question": "Your company is planning to host services in Azure. You want to leverage identities in Entra ID, but still need to support on-premises identities in Active Directory. Can you support single sign-on (SSO) and multi-factor authentication for both on-premises and cloud with Entra ID?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 69,
+    "question": "You need to configure access to Office 365 resources for users at Contoso. To group users for assignment of permissions, which of the following options would you use?",
+    "options": [
+      "Microsoft 365 group",
+      "Resource group",
+      "Security group",
+      "Management group"
+    ],
+    "answer": "Microsoft 365 group"
+  },
+  {
+    "id": 70,
+    "question": "Implementing Azure MFA (multi-factor authentication) will ensure we know who the user is who they claim to be. This is an example of:",
+    "options": [
+      "Authorization",
+      "Authentication",
+      "Integrity",
+      "Confidentiality"
+    ],
+    "answer": "Authentication"
+  },
+  {
+    "id": 71,
+    "question": "You need to ensure on-premises file shares and Azure Files remain in sync in both directions, regardless of where the file was changed. Which tool or service would you choose? (choose the best answer)",
+    "options": [
+      "AzCopy",
+      "Azure Storage Explorer",
+      "Azure File Sync",
+      "Azure Data Box"
+    ],
+    "answer": "Azure File Sync"
+  },
+  {
+    "id": 72,
+    "question": "Contoso's Security team wants to implement selective use of multi-factor authentication (MFA) based on multiple factors related to the authentication request, such as device health and sign-in risk. Which services should they implement?",
+    "options": [
+      "Conditional Access and Identity Protection",
+      "Identity Protection and Entitlement Management",
+      "Multi-Factor Authentication (MFA) and Identity Protection",
+      "Windows Hello for Business and Conditional Access"
+    ],
+    "answer": "Conditional Access and Identity Protection"
+  },
+  {
+    "id": 73,
+    "question": "Contoso has deployed resources across multiple Azure regions for multiple business units. They have a requirement to generate cost and chargeback reporting to track the Azure costs to be charged back to each business unit. Which Azure feature should they use to simplify this task?",
+    "options": [
+      "Tags",
+      "Resource Locks",
+      "Resource Groups",
+      "Management Groups"
+    ],
+    "answer": "Tags"
+  },
+  {
+    "id": 74,
+    "question": "You need to identify and enforce Contoso's corporate standards across new and existing Azure deployments. Which service would you choose to achieve this requirement? (choose the best answer)",
+    "options": [
+      "Azure Blueprints",
+      "Azure Policy",
+      "Azure Resource Manager (ARM) templates",
+      "Azure Automation"
+    ],
+    "answer": "Azure Policy"
+  },
+  {
+    "id": 75,
+    "question": "Using role based access control (RBAC) in Azure, we can determine which resources and services a user has access to. This is an example of:",
+    "options": [
+      "Authorization",
+      "Authentication",
+      "Integrity",
+      "Confidentiality"
+    ],
+    "answer": "Authorization"
+  },
+  {
+    "id": 76,
+    "question": "Azure China and Azure Government are examples of:",
+    "options": [
+      "Private clouds",
+      "Sovereign regions",
+      "Azure geographies",
+      "Management groups"
+    ],
+    "answer": "Sovereign regions"
+  },
+  {
+    "id": 77,
+    "question": "You need to ensure no one (including administrators) can create additional resources in a Azure resource group. What will you do to achieve this objective?",
+    "options": [
+      "Azure Policy",
+      "Role based access control (RBAC)",
+      "Resource locks",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Resource locks"
+  },
+  {
+    "id": 78,
+    "question": "Which of the following describes authentication?",
+    "options": [
+      "Determines which resources you can access",
+      "Defines the services and regions you can access",
+      "Validates that a user is who they claim to be",
+      "Establishes your resource access"
+    ],
+    "answer": "Validates that a user is who they claim to be"
+  },
+  {
+    "id": 79,
+    "question": "You need to track resource consumption by application and department for cost tracking and chargeback. Which of the following will enable this capability.",
+    "options": [
+      "Azure Monitor",
+      "Tags",
+      "Azure",
+      "Management Groups"
+    ],
+    "answer": "Tags"
+  },
+  {
+    "id": 80,
+    "question": "You need to automate movement of multiple files to a storage account. What command line tool can you use to script copying blobs or files to or from your storage account? (choose the best answer)",
+    "options": [
+      "Azure File Sync",
+      "Azure Storage Explorer",
+      "AzCopy",
+      "Azure Data Box"
+    ],
+    "answer": "AzCopy"
+  },
+  {
+    "id": 81,
+    "question": "Which Azure storage redundancy option would you select for development workloads where minimizing expense is the highest priority?",
+    "options": [
+      "Zone Redundant Storage (ZRS)",
+      "Geo-Redundant Storage (GRS)",
+      "Geo-Zone Redundant Storage (GZRS)",
+      "Locally Redundant Storage (LRS)"
+    ],
+    "answer": "Locally Redundant Storage (LRS)"
+  },
+  {
+    "id": 82,
+    "question": "Contoso needs Azure capacity to support spikes in request traffic to their load-balanced web farm during the holiday shopping season. A consultant recommends deploying the website to a virtual machine scale set in Azure. Will this meet the requirement?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 83,
+    "question": "Which type of Azure storage stores NoSQL data in Azure, including a schemaless key/attribute store?",
+    "options": [
+      "Queue Storage",
+      "Table Storage",
+      "Blob Storage",
+      "File Storage"
+    ],
+    "answer": "Table Storage"
+  },
+  {
+    "id": 84,
+    "question": "You need to identify deviations from Microsoft security best practices in your Azure cloud infrastructure. Which service should you use?",
+    "options": [
+      "Azure Advisor",
+      "Microsoft Defender for Cloud",
+      "Azure Monitor",
+      "Azure Key Vault"
+    ],
+    "answer": "Microsoft Defender for Cloud"
+  },
+  {
+    "id": 85,
+    "question": "Contoso IT is planning to migrate all on-premises data to Azure. The Legal Department has asked for verification that Azure complies with Contoso's regulatory obligations, such as HIPAA and PCI DSS. Which Azure service can be used to monitor for regulatory compliance?",
+    "options": [
+      "Azure App Insights",
+      "Azure Advisor",
+      "Azure Monitor",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Microsoft Defender for Cloud"
+  },
+  {
+    "id": 86,
+    "question": "You need to calculate the estimated cost of a set of Azure resources before you deploy them. Which service or tool will you use?",
+    "options": [
+      "Azure Advisor",
+      "Azure Pricing Calculator",
+      "Azure Cost Management",
+      "Azure TCO Calculator"
+    ],
+    "answer": "Azure Pricing Calculator"
+  },
+  {
+    "id": 87,
+    "question": "As part of a migration of on-premises VM workloads to Azure VMs, Contoso wants to minimize costs. Since the VMs will be running in Azure for an extended period of time (years), what option should they consider to reduce hosting costs?",
+    "options": [
+      "Azure Cost Management",
+      "Azure Reservations",
+      "Azure Advisor",
+      "VM Scale Sets"
+    ],
+    "answer": "Azure Reservations"
+  },
+  {
+    "id": 88,
+    "question": "A ______ is a virtual network gateway that sends encrypted traffic between an Azure VNET and an on-premises location over the Internet",
+    "options": [
+      "App gateway",
+      "Web proxy",
+      "VPN gateway",
+      "Private endpoint"
+    ],
+    "answer": "VPN gateway"
+  },
+  {
+    "id": 89,
+    "question": "Contoso IT Operations has been tasked with providing recommendations on how to reducing cost of running Azure VMs. Which service should they use to gather recommendations?",
+    "options": [
+      "Microsoft Defender for Cloud",
+      "Azure Advisor",
+      "Azure Monitor",
+      "Azure App Insights"
+    ],
+    "answer": "Azure Advisor"
+  },
+  {
+    "id": 90,
+    "question": "Contoso is planning to move several on-premises services to Azure PaaS and IaaS solutions. The CIO has asked for a tool to estimate the cost of hosting these resources in Azure. Tom suggests Azure Cost Management to estimate costs prior to migration. Does Tom's solution meet the solution criteria?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "NO"
+  },
+  {
+    "id": 91,
+    "question": "To manage service lifecycle with more granularity, Contoso cloud architects have designed a model that involves a large number of resource groups. Will Contoso incur additional costs for the resources groups?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "NO"
+  },
+  {
+    "id": 92,
+    "question": "You plan to deploy several Azure VMs. The applications running on these VMs should remain available if a single Azure datacenter fails. You opt to deploy VMs to multiple availability zones. Does your solution meet the solution criteria?",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 93,
+    "question": "Contoso IT has deployed a group of VMs in Azure. They want to identify recommendations on how to reduce the cost of running these VMs. Which tool should they use? (choose the best answer)",
+    "options": [
+      "Azure Price Calculator",
+      "Azure Advisor",
+      "Azure Cost Management",
+      "Microsoft Defender for Cloud"
+    ],
+    "answer": "Azure Advisor"
+  },
+  {
+    "id": 94,
+    "question": "Azure App Service supports which of the following application type(s)?",
+    "options": [
+      "Web apps",
+      "Mobile apps",
+      "API apps",
+      "All the above"
+    ],
+    "answer": "All the above"
+  },
+  {
+    "id": 95,
+    "question": "Which virtual machine configuration supports a more resilient, highly available environment by staggering VM updates and ensuring varied power and network connectivity?",
+    "options": [
+      "Virtual machine scale sets",
+      "Virtual machine availability sets",
+      "virtual cluster",
+      "Azure Virtual Desktop"
+    ],
+    "answer": "Virtual machine availability sets"
+  },
+  {
+    "id": 96,
+    "question": "Tailspin Toys uses a pay-as-you-go (PAYG) subscription in Azure. PAYG generally provides lowest cost over time, but least flexibility in terms of shifting consumption to new services.",
+    "options": [
+      "TRUE",
+      "FALSE"
+    ],
+    "answer": "FALSE"
+  },
+  {
+    "id": 97,
+    "question": "Azure Container Instances enable running containers without host servers to manage.",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 98,
+    "question": "Azure Container Instances enable elastic bursting for Azure Kubernetes Service",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 99,
+    "question": "Azure VMs in different subnets in the same virtual network can communicate by default",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 100,
+    "question": "Azure DDoS, which protects your Azure resources against distributed denial of services attacks, includes both a Basic and Standard tiers.",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "answer": "YES"
+  },
+  {
+    "id": 101,
+    "label": "Practice question 1 / 50",
+    "question": "What are two characteristics of the public cloud deployment model? Each correct answer presents a complete solution.",
+    "options": [
+      "Servers and storage are owned and operated by a third-party cloud service provider.",
+      "Services are offered over the internet and are available to anyone who wants to purchase them.",
+      "Computing resources are used exclusively by users from one organization.",
+      "Hardware is physically located in an organization's on-site datacenter."
+    ],
+    "answers": [
+      "Servers and storage are owned and operated by a third-party cloud service provider.",
+      "Services are offered over the internet and are available to anyone who wants to purchase them."
+    ]
+  },
+  {
+    "id": 102,
+    "label": "Practice question 2 / 50",
+    "question": "Which two characteristics are common advantages of cloud computing? Each correct answer presents a complete solution.",
+    "options": [
+      "geo-distribution",
+      "high availability",
+      "physical access to servers",
+      "single-tenant hardware only"
+    ],
+    "answers": [
+      "geo-distribution",
+      "high availability"
+    ]
+  },
+  {
+    "id": 103,
+    "label": "Practice question 3 / 50",
+    "question": "Why is cloud computing often less expensive than on-premises datacenters?",
+    "options": [
+      "You are only billed for what you use.",
+      "You must purchase all hardware upfront.",
+      "You need to overprovision for peak demand in advance.",
+      "Physical datacenter maintenance is included in the subscription fee."
+    ],
+    "answer": "You are only billed for what you use."
+  },
+  {
+    "id": 104,
+    "label": "Practice question 4 / 50",
+    "question": "Select the answer that correctly completes the sentence. Increasing compute capacity for an app by adding RAM or CPUs to a virtual machine is called [answer choice].",
+    "options": [
+      "vertical scaling",
+      "horizontal scaling",
+      "disaster recovery",
+      "high availability"
+    ],
+    "answer": "vertical scaling"
+  },
+  {
+    "id": 105,
+    "label": "Practice question 5 / 50",
+    "question": "Select the answer that correctly completes the sentence. Deploying and configuring cloud-based resources quickly as business requirements change is called [answer choice].",
+    "options": [
+      "agility",
+      "scalability",
+      "elasticity",
+      "high availability"
+    ],
+    "answer": "agility"
+  },
+  {
+    "id": 106,
+    "label": "Practice question 6 / 50",
+    "question": "Select the answer that correctly completes the sentence. Increasing compute capacity for an app by adding instances of resources such as virtual machines is called [answer choice].",
+    "options": [
+      "horizontal scaling",
+      "vertical scaling",
+      "disaster recovery",
+      "high availability"
+    ],
+    "answer": "horizontal scaling"
+  },
+  {
+    "id": 107,
+    "label": "Practice question 7 / 50",
+    "question": "What are cloud-based backup services, data replication, and geo-distribution features of?",
+    "options": [
+      "a disaster recovery plan",
+      "an elastic application configuration",
+      "a resource tagging strategy",
+      "a virtual network peering setup"
+    ],
+    "answer": "a disaster recovery plan"
+  },
+  {
+    "id": 108,
+    "label": "Practice question 8 / 50",
+    "question": "Select the answer that correctly completes the sentence. An example of [answer choice] is automatically scaling an application to ensure that the application has the resources needed to meet customer demands.",
+    "options": [
+      "elasticity",
+      "agility",
+      "high availability",
+      "geo-distribution"
+    ],
+    "answer": "elasticity"
+  },
+  {
+    "id": 109,
+    "label": "Practice question 9 / 50",
+    "question": "In which two deployment models are customers responsible for managing operating systems that host applications? Each correct answer presents a complete solution.",
+    "options": [
+      "infrastructure as a service (IaaS)",
+      "on-premises",
+      "platform as a service (PaaS)",
+      "software as a service (SaaS)"
+    ],
+    "answers": [
+      "infrastructure as a service (IaaS)",
+      "on-premises"
+    ]
+  },
+  {
+    "id": 110,
+    "label": "Practice question 10 / 50",
+    "question": "Which type of cloud service model is typically licensed through a monthly or annual subscription?",
+    "options": [
+      "software as a service (SaaS)",
+      "platform as a service (PaaS)",
+      "infrastructure as a service (IaaS)",
+      "hybrid cloud"
+    ],
+    "answer": "software as a service (SaaS)"
+  },
+  {
+    "id": 111,
+    "label": "Practice question 11 / 50",
+    "question": "In which cloud service model is the customer responsible for managing the operating system?",
+    "options": [
+      "Infrastructure as a service (IaaS)",
+      "platform as a service (PaaS)",
+      "software as a service (SaaS)",
+      "function as a service (FaaS)"
+    ],
+    "answer": "Infrastructure as a service (IaaS)"
+  },
+  {
+    "id": 112,
+    "label": "Practice question 12 / 50",
+    "question": "Your organization is building a custom application. You need to focus on application development rather than configuration and management of servers. Which cloud service model should you use?",
+    "options": [
+      "platform as a service (PaaS)",
+      "software as a service (SaaS)",
+      "infrastructure as a service (IaaS)",
+      "on-premises datacenter"
+    ],
+    "answer": "platform as a service (PaaS)"
+  },
+  {
+    "id": 113,
+    "label": "Practice question 13 / 50",
+    "question": "Which cloud service model is used by Azure SQL Database?",
+    "options": [
+      "platform as a service (PaaS)",
+      "software as a service (SaaS)",
+      "infrastructure as a service (IaaS)",
+      "bare-metal hosting"
+    ],
+    "answer": "platform as a service (PaaS)"
+  },
+  {
+    "id": 114,
+    "label": "Practice question 14 / 50",
+    "question": "What uses the infrastructure as a service (IaaS) cloud service model?",
+    "options": [
+      "Azure virtual machines",
+      "Azure Cosmos DB",
+      "Azure App Service",
+      "Microsoft 365"
+    ],
+    "answer": "Azure virtual machines"
+  },
+  {
+    "id": 115,
+    "label": "Practice question 15 / 50",
+    "question": "Select the answer that correctly completes the sentence. [Answer choice] is the logical container used to combine and organize Azure resources.",
+    "options": [
+      "a resource group",
+      "an Azure region",
+      "a management group",
+      "an availability zone"
+    ],
+    "answer": "a resource group"
+  },
+  {
+    "id": 116,
+    "label": "Practice question 16 / 50",
+    "question": "Select the answer that correctly completes the sentence. In a region pair, a region is paired with another region in the same [answer choice].",
+    "options": [
+      "geography",
+      "resource group",
+      "availability zone",
+      "subscription"
+    ],
+    "answer": "geography"
+  },
+  {
+    "id": 117,
+    "label": "Practice question 17 / 50",
+    "question": "For which resource does Azure generate separate billing reports and invoices by default?",
+    "options": [
+      "subscriptions",
+      "resource groups",
+      "management groups",
+      "billing profiles"
+    ],
+    "answer": "subscriptions"
+  },
+  {
+    "id": 118,
+    "label": "Practice question 18 / 50",
+    "question": "Which resource can you use to manage access, policies, and compliance across multiple subscriptions?",
+    "options": [
+      "management groups",
+      "resource groups",
+      "administrative units",
+      "accounts"
+    ],
+    "answer": "management groups"
+  },
+  {
+    "id": 119,
+    "label": "Practice question 19 / 50",
+    "question": "Which two Azure resources can make use of availability zones? Each correct answer presents a complete solution.",
+    "options": [
+      "Azure SQL databases",
+      "virtual machines",
+      "management groups",
+      "Azure Policy assignments"
+    ],
+    "answers": [
+      "Azure SQL databases",
+      "virtual machines"
+    ]
+  },
+  {
+    "id": 120,
+    "label": "Practice question 20 / 50",
+    "question": "Which Azure resource is a software emulation of a physical computer that includes a virtual processor, memory, storage, and networking resources?",
+    "options": [
+      "a virtual machine",
+      "a function",
+      "a virtual network",
+      "an availability set"
+    ],
+    "answer": "a virtual machine"
+  },
+  {
+    "id": 121,
+    "label": "Practice question 21 / 50",
+    "question": "Which Azure compute service can you use to deploy and manage a set of identical virtual machines?",
+    "options": [
+      "Azure Virtual Machine Scale Sets",
+      "Azure App Service",
+      "Azure Container Instances",
+      "Azure Availability Sets"
+    ],
+    "answer": "Azure Virtual Machine Scale Sets"
+  },
+  {
+    "id": 122,
+    "label": "Practice question 22 / 50",
+    "question": "What can you use to connect Azure resources, such as Azure SQL databases, to an Azure virtual network?",
+    "options": [
+      "service endpoints",
+      "ExpressRoute",
+      "network security groups",
+      "virtual network peering"
+    ],
+    "answer": "service endpoints"
+  },
+  {
+    "id": 123,
+    "label": "Practice question 23 / 50",
+    "question": "Which two services can you use to establish network connectivity between an on-premises network and Azure resources? Each correct answer presents a complete solution.",
+    "options": [
+      "Azure VPN Gateway",
+      "ExpressRoute",
+      "Azure Bastion",
+      "Azure Firewall"
+    ],
+    "answers": [
+      "Azure VPN Gateway",
+      "ExpressRoute"
+    ]
+  },
+  {
+    "id": 124,
+    "label": "Practice question 24 / 50",
+    "question": "What are two services that allow you to run applications in containers? Each correct answer presents a complete solution.",
+    "options": [
+      "Azure Container Instances",
+      "Azure Kubernetes Service (AKS)",
+      "Azure Virtual Desktop",
+      "Azure SQL Database"
+    ],
+    "answers": [
+      "Azure Container Instances",
+      "Azure Kubernetes Service (AKS)"
+    ]
+  },
+  {
+    "id": 125,
+    "label": "Practice question 25 / 50",
+    "question": "Which storage service should you use to store thousands of files containing text and images?",
+    "options": [
+      "Azure Blob storage",
+      "Azure Table storage",
+      "Azure Queue storage",
+      "Azure Disk Storage"
+    ],
+    "answer": "Azure Blob storage"
+  },
+  {
+    "id": 126,
+    "label": "Practice question 26 / 50",
+    "question": "Which Azure Blob storage tier stores data offline and offers the lowest storage costs and the highest costs to access data?",
+    "options": [
+      "Archive",
+      "Hot",
+      "Cool",
+      "Cold"
+    ],
+    "answer": "Archive"
+  },
+  {
+    "id": 127,
+    "label": "Practice question 27 / 50",
+    "question": "Which two scenarios are common use cases for Azure Blob storage? Each correct answer presents a complete solution.",
+    "options": [
+      "serving images or documents directly to a browser",
+      "storing data for backup and restore",
+      "mounting SMB file shares to Windows clients",
+      "hosting an operating system disk for a virtual machine"
+    ],
+    "answers": [
+      "serving images or documents directly to a browser",
+      "storing data for backup and restore"
+    ]
+  },
+  {
+    "id": 128,
+    "label": "Practice question 28 / 50",
+    "question": "Which Azure Storage service should you use to store unstructured files, such as images, that will be served on webpages?",
+    "options": [
+      "Azure Blob storage",
+      "Azure Table storage",
+      "Azure Queue storage",
+      "Azure Files"
+    ],
+    "answer": "Azure Blob storage"
+  },
+  {
+    "id": 129,
+    "label": "Practice question 29 / 50",
+    "question": "What is the purpose of defense in depth?",
+    "options": [
+      "to use several layers of protection to prevent information from being accessed by unauthorized users",
+      "to replace all perimeter defenses with just-in-time access",
+      "to require passwordless sign-in for every Azure resource",
+      "to classify resources for chargeback reporting"
+    ],
+    "answer": "to use several layers of protection to prevent information from being accessed by unauthorized users"
+  },
+  {
+    "id": 130,
+    "label": "Practice question 30 / 50",
+    "question": "What enables a user to sign in one time and use that credential to access multiple resources and applications from different providers?",
+    "options": [
+      "single sign-on (SSO)",
+      "multifactor authentication (MFA)",
+      "Conditional Access",
+      "role-based access control (RBAC)"
+    ],
+    "answer": "single sign-on (SSO)"
+  },
+  {
+    "id": 131,
+    "label": "Practice question 31 / 50",
+    "question": "To which object or level is an Azure role-based access control (RBAC) role applied?",
+    "options": [
+      "scope",
+      "tag",
+      "policy",
+      "lock"
+    ],
+    "answer": "scope"
+  },
+  {
+    "id": 132,
+    "label": "Practice question 32 / 50",
+    "question": "What must you use to create hybrid identities in a Microsoft Entra tenant?",
+    "options": [
+      "Microsoft Entra Connect Sync",
+      "Conditional Access",
+      "self-service password reset (SSPR)",
+      "Privileged Identity Management"
+    ],
+    "answer": "Microsoft Entra Connect Sync"
+  },
+  {
+    "id": 133,
+    "label": "Practice question 33 / 50",
+    "question": "What can you use to ensure that users authenticate by using multifactor authentication (MFA) when they attempt to sign in from a specific location?",
+    "options": [
+      "Conditional Access",
+      "single sign-on (SSO)",
+      "Microsoft Entra Connect Sync",
+      "security defaults"
+    ],
+    "answer": "Conditional Access"
+  },
+  {
+    "id": 134,
+    "label": "Practice question 34 / 50",
+    "question": "Which are two common scenarios for using resource tags? Each correct answer presents a complete solution.",
+    "options": [
+      "associating costs with different environments",
+      "categorizing costs by department",
+      "resizing underutilized virtual machines",
+      "provisioning resources in lower cost regions"
+    ],
+    "answers": [
+      "associating costs with different environments",
+      "categorizing costs by department"
+    ]
+  },
+  {
+    "id": 135,
+    "label": "Practice question 35 / 50",
+    "question": "You plan to build a new solution in Azure that will use platform as a service (PaaS) products. What should you use to estimate the monthly costs?",
+    "options": [
+      "Azure Pricing calculator",
+      "Azure TCO Calculator",
+      "Azure Cost Management + Billing",
+      "Azure Advisor"
+    ],
+    "answer": "Azure Pricing calculator"
+  },
+  {
+    "id": 136,
+    "label": "Practice question 36 / 50",
+    "question": "Which two features are available by using Azure Cost Management + Billing? Each correct answer presents a complete solution.",
+    "options": [
+      "Create and manage budgets.",
+      "Generate historical reports and forecast future usage.",
+      "Provide discounted prices when you pay in advance.",
+      "Automatically enforce role-based access control assignments."
+    ],
+    "answers": [
+      "Create and manage budgets.",
+      "Generate historical reports and forecast future usage."
+    ]
+  },
+  {
+    "id": 137,
+    "label": "Practice question 37 / 50",
+    "question": "Your organization plans to deploy several production virtual machines that will have consistent resource usage throughout the year. What can you use to minimize the costs of the virtual machines without reducing the functionality of the virtual machines?",
+    "options": [
+      "Azure Reservations",
+      "spending limits",
+      "auto-shutdown",
+      "Azure Spot Virtual Machines"
+    ],
+    "answer": "Azure Reservations"
+  },
+  {
+    "id": 138,
+    "label": "Practice question 38 / 50",
+    "question": "What can you apply to an Azure virtual machine to ensure that users cannot delete the resource?",
+    "options": [
+      "a lock",
+      "a tag",
+      "a user-assigned managed identity",
+      "Conditional Access"
+    ],
+    "answer": "a lock"
+  },
+  {
+    "id": 139,
+    "label": "Practice question 39 / 50",
+    "question": "You need to ensure that Azure virtual machines can be deployed only if they have four or less virtual processors. What should you implement?",
+    "options": [
+      "Azure Policy",
+      "Cloud Adoption Framework",
+      "resource locks",
+      "management groups"
+    ],
+    "answer": "Azure Policy"
+  },
+  {
+    "id": 140,
+    "label": "Practice question 40 / 50",
+    "question": "What can you use to restrict the deployment of a virtual machine to a specific location?",
+    "options": [
+      "Azure Policy",
+      "resource locks",
+      "Azure Reservations",
+      "network security groups"
+    ],
+    "answer": "Azure Policy"
+  },
+  {
+    "id": 141,
+    "label": "Practice question 41 / 50",
+    "question": "Which two actions can be performed by using Azure portal? Each correct answer presents a complete solution.",
+    "options": [
+      "Create new resources.",
+      "Create Microsoft Entra user",
+      "Replace failed physical server hardware",
+      "Access a datacenter cage in person"
+    ],
+    "answers": [
+      "Create new resources.",
+      "Create Microsoft Entra user"
+    ]
+  },
+  {
+    "id": 142,
+    "label": "Practice question 42 / 50",
+    "question": "What can you use to define the resources you want to provision in a declarative JSON format?",
+    "options": [
+      "Azure Resource Manager (ARM) templates",
+      "Azure Policy",
+      "Azure Resource Graph",
+      "Azure PowerShell"
+    ],
+    "answer": "Azure Resource Manager (ARM) templates"
+  },
+  {
+    "id": 143,
+    "label": "Practice question 43 / 50",
+    "question": "Which management layer accepts requests from any Azure tool or API and enables you to create, update, and delete resources in an Azure account?",
+    "options": [
+      "Azure Resource Manager (ARM)",
+      "Azure Policy",
+      "Azure Monitor",
+      "Microsoft Entra ID"
+    ],
+    "answer": "Azure Resource Manager (ARM)"
+  },
+  {
+    "id": 144,
+    "label": "Practice question 44 / 50",
+    "question": "Which two tools are accessible via Azure Cloud Shell to manage an Azure environment?",
+    "options": [
+      "Azure CLI",
+      "Azure PowerShell",
+      "Azure Resource Manager (ARM) templates",
+      "Azure portal"
+    ],
+    "answers": [
+      "Azure CLI",
+      "Azure PowerShell"
+    ]
+  },
+  {
+    "id": 145,
+    "label": "Practice question 45 / 50",
+    "question": "Which two tools can you use to create a new Azure virtual machine from a mobile device that runs Android? Each correct answer presents complete solution.",
+    "options": [
+      "PowerShell in Azure Cloud Shell",
+      "the Azure portal",
+      "Azure Data Box",
+      "Azure Service Health"
+    ],
+    "answers": [
+      "PowerShell in Azure Cloud Shell",
+      "the Azure portal"
+    ]
+  },
+  {
+    "id": 146,
+    "label": "Practice question 46 / 50",
+    "question": "What can you use to manage servers across third party cloud platforms and on-premises environments?",
+    "options": [
+      "Azure Arc",
+      "Azure PowerShell",
+      "Azure Policy",
+      "Azure Update Manager"
+    ],
+    "answer": "Azure Arc"
+  },
+  {
+    "id": 147,
+    "label": "Practice question 47 / 50",
+    "question": "You need to review the root cause analysis (RCA) report for a service outage that occurred last week. Where should you look for the report?",
+    "options": [
+      "Azure Service Health",
+      "Azure Status",
+      "Azure Advisor",
+      "Azure Monitor"
+    ],
+    "answer": "Azure Service Health"
+  },
+  {
+    "id": 148,
+    "label": "Practice question 48 / 50",
+    "question": "You need to create a custom solution that uses thresholds to trigger autoscaling functionality to scale an app up or down to meet user demand. What should you include in the solution?",
+    "options": [
+      "Azure Monitor",
+      "Azure Advisor",
+      "Azure Policy",
+      "Azure Service Health"
+    ],
+    "answer": "Azure Monitor"
+  },
+  {
+    "id": 149,
+    "label": "Practice question 49 / 50",
+    "question": "What should you proactively review and act on to avoid service interruptions, such as service retirements and breaking changes?",
+    "options": [
+      "health advisories",
+      "resource locks",
+      "activity logs",
+      "service quotas"
+    ],
+    "answer": "health advisories"
+  },
+  {
+    "id": 150,
+    "label": "Practice question 50 / 50",
+    "question": "Which Azure service can generate an alert if virtual machine utilization is over 80% for five minutes?",
+    "options": [
+      "Azure Monitor",
+      "Azure Service Health",
+      "Microsoft Defender for Cloud",
+      "Azure Advisor"
+    ],
+    "answer": "Azure Monitor"
+  }
+];
+
+    const totalQuestions = quizBank.length;
+
+    // ======= APP STATE =======
+    const state = {
+      cycle: 0,
+      queue: [],
+      currentQuestion: null,
+      shuffledOptions: [],
+      questionPositionInCycle: 0,
+      correctThisCycle: 0,
+      attemptsThisCycle: 0,
+      locked: false,
+      selectedOptions: new Set()
+    };
+
+    const dingSound = new Audio("ding.mp3");
+    const buzzSound = new Audio("buzz.mp3");
+    dingSound.preload = "auto";
+    buzzSound.preload = "auto";
+
+    const els = {
+      cycleValue: document.getElementById("cycleValue"),
+      questionValue: document.getElementById("questionValue"),
+      correctValue: document.getElementById("correctValue"),
+      attemptValue: document.getElementById("attemptValue"),
+      cyclePill: document.getElementById("cyclePill"),
+      progressPill: document.getElementById("progressPill"),
+      remainingPill: document.getElementById("remainingPill"),
+      progressBar: document.getElementById("progressBar"),
+      questionNumber: document.getElementById("questionNumber"),
+      questionText: document.getElementById("questionText"),
+      choices: document.getElementById("choices"),
+      feedback: document.getElementById("feedback"),
+      feedbackIcon: document.getElementById("feedbackIcon"),
+      feedbackTitle: document.getElementById("feedbackTitle"),
+      feedbackText: document.getElementById("feedbackText"),
+      helpText: document.getElementById("helpText"),
+      checkBtn: document.getElementById("checkBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      restartBtn: document.getElementById("restartBtn")
+    };
+
+    function shuffle(array) {
+      const clone = [...array];
+      for (let i = clone.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [clone[i], clone[j]] = [clone[j], clone[i]];
+      }
+      return clone;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function playSafe(audio) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {
+        // Ignore missing-file or autoplay issues. The UI still works.
+      });
+    }
+
+    function getCorrectAnswers(question) {
+      if (Array.isArray(question.answers)) return question.answers;
+      return [question.answer];
+    }
+
+    function isMultiQuestion(question) {
+      return getCorrectAnswers(question).length > 1;
+    }
+
+    function getQuestionLabel(question) {
+      return question.label || `Source question #${question.id}`;
+    }
+
+    function updateProgressBar() {
+      const pct = ((Math.min(state.questionPositionInCycle, totalQuestions) - 1) / totalQuestions) * 100;
+      els.progressBar.style.width = `${Math.max(0, pct)}%`;
+    }
+
+    function renderStats() {
+      els.cycleValue.textContent = state.cycle;
+      els.questionValue.textContent = `${Math.min(state.questionPositionInCycle, totalQuestions)} / ${totalQuestions}`;
+      els.correctValue.textContent = state.correctThisCycle;
+      els.attemptValue.textContent = state.attemptsThisCycle;
+
+      els.cyclePill.textContent = `Cycle ${state.cycle}`;
+      els.progressPill.textContent = `Question ${Math.min(state.questionPositionInCycle, totalQuestions)} of ${totalQuestions}`;
+
+      const remainingAfterThis = Math.max(totalQuestions - state.questionPositionInCycle, 0);
+      els.remainingPill.textContent = `${remainingAfterThis} left after this one`;
+
+      updateProgressBar();
+    }
+
+    function setFeedback(mode, icon, title, text) {
+      els.feedback.classList.remove("good", "bad");
+      if (mode === "good") els.feedback.classList.add("good");
+      if (mode === "bad") els.feedback.classList.add("bad");
+      els.feedbackIcon.textContent = icon;
+      els.feedbackTitle.textContent = title;
+      els.feedbackText.innerHTML = text;
+    }
+
+    function setQuestionPromptFeedback() {
+      const question = state.currentQuestion;
+      if (isMultiQuestion(question)) {
+        const count = getCorrectAnswers(question).length;
+        setFeedback("neutral", "•", `Choose ${count} answers`, `Select ${count} answers, then click <code>Check answer</code>. Correct answers play <code>ding.mp3</code>. Wrong answers play <code>buzz.mp3</code>.`);
+      } else {
+        setFeedback("neutral", "•", "Pick an answer", `Correct answers play <code>ding.mp3</code>. Wrong answers play <code>buzz.mp3</code>.`);
+      }
+    }
+
+    function lockChoices() {
+      document.querySelectorAll(".choice").forEach(btn => {
+        btn.disabled = true;
+      });
+    }
+
+    function clearSelections() {
+      state.selectedOptions.clear();
+      document.querySelectorAll(".choice").forEach(btn => {
+        btn.classList.remove("selected");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      els.checkBtn.disabled = true;
+    }
+
+    function renderQuestion() {
+      const q = state.currentQuestion;
+      els.questionNumber.textContent = getQuestionLabel(q);
+      els.questionText.textContent = q.question;
+      els.choices.innerHTML = "";
+
+      state.shuffledOptions.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice";
+        btn.dataset.option = option;
+        btn.setAttribute("aria-pressed", "false");
+        btn.innerHTML = `
+          <span class="choice-letter">${String.fromCharCode(65 + index)}</span>
+          <span>${escapeHtml(option)}</span>
+        `;
+
+        if (isMultiQuestion(q)) {
+          btn.addEventListener("click", () => toggleMultiChoice(btn, option));
+        } else {
+          btn.addEventListener("click", () => handleSingleChoice(btn, option));
+        }
+
+        els.choices.appendChild(btn);
+      });
+    }
+
+    function finalizeCorrect() {
+      state.locked = true;
+      state.correctThisCycle += 1;
+      renderStats();
+
+      const correctSet = new Set(getCorrectAnswers(state.currentQuestion));
+      document.querySelectorAll(".choice").forEach(btn => {
+        btn.disabled = true;
+        if (correctSet.has(btn.dataset.option)) {
+          btn.classList.add("correct");
+          btn.classList.remove("selected");
+        }
+      });
+
+      els.checkBtn.hidden = true;
+      els.nextBtn.hidden = false;
+      els.nextBtn.focus();
+
+      playSafe(dingSound);
+      setFeedback("good", "✓", "Correct", "Nice. Hit Next question to continue through the shuffled cycle.");
+    }
+
+    function handleSingleChoice(button, option) {
+      if (state.locked) return;
+
+      state.attemptsThisCycle += 1;
+      renderStats();
+
+      if (option === state.currentQuestion.answer) {
+        finalizeCorrect();
+      } else {
+        button.classList.add("incorrect");
+        button.disabled = true;
+        playSafe(buzzSound);
+        setFeedback("bad", "✕", "Not quite", "Try again on the same question.");
+        window.setTimeout(() => button.classList.remove("incorrect"), 280);
+      }
+    }
+
+    function toggleMultiChoice(button, option) {
+      if (state.locked) return;
+
+      if (state.selectedOptions.has(option)) {
+        state.selectedOptions.delete(option);
+        button.classList.remove("selected");
+        button.setAttribute("aria-pressed", "false");
+      } else {
+        state.selectedOptions.add(option);
+        button.classList.add("selected");
+        button.setAttribute("aria-pressed", "true");
+      }
+
+      const required = getCorrectAnswers(state.currentQuestion).length;
+      els.checkBtn.disabled = state.selectedOptions.size === 0;
+      setFeedback("neutral", "•", `Choose ${required} answers`, `${state.selectedOptions.size} selected. Click <code>Check answer</code> when ready.`);
+    }
+
+    function handleMultiCheck() {
+      if (state.locked || !isMultiQuestion(state.currentQuestion) || state.selectedOptions.size === 0) return;
+
+      state.attemptsThisCycle += 1;
+      renderStats();
+
+      const correctAnswers = getCorrectAnswers(state.currentQuestion);
+      const correctSet = new Set(correctAnswers);
+      const chosen = [...state.selectedOptions];
+      const isCorrect =
+        chosen.length === correctAnswers.length &&
+        chosen.every(option => correctSet.has(option));
+
+      if (isCorrect) {
+        finalizeCorrect();
+        return;
+      }
+
+      playSafe(buzzSound);
+      setFeedback("bad", "✕", "Not quite", "Try again on the same question.");
+
+      document.querySelectorAll(".choice").forEach(btn => {
+        if (state.selectedOptions.has(btn.dataset.option)) {
+          btn.classList.add("incorrect");
+        }
+      });
+
+      window.setTimeout(() => {
+        document.querySelectorAll(".choice").forEach(btn => {
+          btn.classList.remove("incorrect");
+          btn.classList.remove("selected");
+          btn.setAttribute("aria-pressed", "false");
+        });
+        state.selectedOptions.clear();
+        els.checkBtn.disabled = true;
+      }, 320);
+    }
+
+    function startNewCycle() {
+      state.cycle += 1;
+      state.queue = shuffle(quizBank.map(q => q.id));
+      state.questionPositionInCycle = 0;
+      state.correctThisCycle = 0;
+      state.attemptsThisCycle = 0;
+      state.locked = false;
+      state.selectedOptions.clear();
+      loadNextQuestion(true);
+    }
+
+    function loadNextQuestion(isNewCycle = false) {
+      if (state.queue.length === 0) {
+        startNewCycle();
+        return;
+      }
+
+      const nextId = state.queue.shift();
+      state.currentQuestion = quizBank.find(q => q.id === nextId);
+      state.questionPositionInCycle += 1;
+      state.shuffledOptions = shuffle(state.currentQuestion.options);
+      state.locked = false;
+      state.selectedOptions.clear();
+
+      els.nextBtn.hidden = true;
+      els.checkBtn.hidden = !isMultiQuestion(state.currentQuestion);
+      els.checkBtn.disabled = true;
+
+      renderStats();
+      renderQuestion();
+      setQuestionPromptFeedback();
+    }
+
+    els.nextBtn.addEventListener("click", () => loadNextQuestion(false));
+    els.restartBtn.addEventListener("click", () => startNewCycle());
+    els.checkBtn.addEventListener("click", () => handleMultiCheck());
+
+    startNewCycle();
+  </script>
+
+</body>
+</html>
